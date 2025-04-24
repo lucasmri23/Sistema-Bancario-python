@@ -1,9 +1,13 @@
+import textwrap
+
 saldo=0
 limite=500
 extrato=''
 numero_saques = 0
 LIMITE_SAQUES = 3
+AGENCIA = "0001"
 usuarios = {}
+contas = []
 
 def limpa_tela():
     import os
@@ -60,6 +64,8 @@ def criar_usuario(usuarios):
 
     if user:
         print("Usuário já cadastrado com esse numero de CPF!")
+        pause = input("Pressione Enter para continuar...")
+        limpa_tela()
         return
     
     nome = input("Digite o nome completo: ")
@@ -75,6 +81,33 @@ def verifica_cpf(cpf, usuarios):
     verificacao_usuario = [usuario for usuario in usuarios.values() if usuario["cpf"] == cpf]
     return verificacao_usuario[0] if verificacao_usuario else None
 
+def criar_conta(agencia, numero_conta, usuarios):
+    cpf = input("Digite o CPF do usuário: ")
+    user = verifica_cpf(cpf, usuarios)
+
+    if user:
+        print("Conta cadastrada com sucesso!")
+        pause = input("Pressione Enter para continuar...")
+        limpa_tela()
+        return {"agencia": agencia, "numero_conta": numero_conta, "usuario": user}
+    
+    print("Usuário não encontrado, a conta não foi criada!")
+    pause = input("Pressione Enter para continuar...")
+    limpa_tela()
+    return None
+
+def listar_contas(contas):
+    for conta in contas:
+        linha = f"""\
+            Agência:\t{conta['agencia']}
+            Conta:\t\t{conta['numero_conta']}
+            Titular:\t{conta['usuario']['nome']}
+        """
+        print("=" * 50)
+        print(textwrap.dedent(linha))
+        pause = input("Pressione Enter para continuar...")
+        limpa_tela()
+
 def main():
     menu = '''
     ========== MENU ==========
@@ -83,6 +116,7 @@ def main():
     [e] Extrato
     [u] Criar usuário
     [c] Criar conta corrente
+    [l] Listar contas
     [q] Sair
     ==========================
     '''
@@ -99,7 +133,13 @@ def main():
             extratos()
         elif switch == 'u':
             criar_usuario(usuarios);
-#        elif switch == 'c':
+        elif switch == 'c':
+            numero_conta = len(contas) + 1
+            conta = criar_conta(AGENCIA, numero_conta, usuarios);
+            if conta:
+                contas.append(conta)
+        elif switch == 'l':
+            listar_contas(contas)
         elif switch == 'q':
             print("Saindo do sistema...")
             break
